@@ -17,13 +17,16 @@ const CustomCamera = (props) => {
   const [x, y, z] = position;
   const ref = useRef();
   const set = useThree((state) => state.set);
+  const size = useThree((state) => state.size);
 
   useLayoutEffect(() => {
     ref.current.position.set(x, y, z);
-    console.log(ref.current.position);
+    // console.log(ref.current.position);
+    ref.current.aspect = size.width / size.height;
     ref.current.updateMatrixWorld();
+    ref.current.updateProjectionMatrix();
     set({ camera: ref.current });
-  }, [props]);
+  }, [position, size]);
 
   return <perspectiveCamera ref={ref} {...props} />;
 };
