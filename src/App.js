@@ -1,6 +1,6 @@
 import React, { Suspense, useRef, useLayoutEffect, useEffect } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, TransformControls } from "@react-three/drei";
 import { Vector3 } from "three";
 import create from "zustand";
 
@@ -70,7 +70,8 @@ const Plane = () => {
 };
 
 const Cube = (props) => {
-  const { color, position, viewpoint } = props;
+  const transform = useRef();
+  const { color, position, viewpoint, rotation } = props;
   const setCamPosition = useStore((state) => state.setCamPosition);
   const setTarget = useStore((state) => state.setTarget);
   const handleClick = (e) => {
@@ -80,13 +81,27 @@ const Cube = (props) => {
     setTarget([x, y, z]);
   };
 
+  useEffect(() => {
+    const controls = transform.current;
+    controls.setMode("translate");
+    controls.setSpace("local");
+  });
+
   return (
-    <group name={`${color} cube`} position={position}>
-      <mesh castShadow onClick={(e) => handleClick(e)}>
-        <boxBufferGeometry attach="geometry" args={[3, 3, 3]} />
-        <meshStandardMaterial attach="material" color={color} />
-      </mesh>
+    // <TransformControls ref={transform}>
+    <group name={`${color} cube`}>
+      <TransformControls
+        ref={transform}
+        position={position}
+        rotation={rotation}
+      >
+        <mesh castShadow onClick={(e) => handleClick(e)}>
+          <boxBufferGeometry attach="geometry" args={[3, 3, 3]} />
+          <meshStandardMaterial attach="material" color={color} />
+        </mesh>
+      </TransformControls>
     </group>
+    // </TransformControls>
   );
 };
 
@@ -107,20 +122,23 @@ export default function App() {
         <Cube
           color="crimson"
           position={[0, 0, 0]}
+          rotation={[0, 1, 0]}
           viewpoint={viewPoints.front}
         />
         <Cube
           color="darkslategray"
           position={[-6, 0, 0]}
+          rotation={[0, Math.PI / 3, 0]}
           viewpoint={viewPoints.left}
         />
         <Cube
           color="steelblue"
-          position={[6, 0, 0]}
+          position={[6, 0, 8]}
+          rotation={[0, Math.PI / 2, 0]}
           viewpoint={viewPoints.right}
         />
 
-        <OrbitControls target={target} />
+        <OrbitControls enabled={true} target={target} />
         <CustomCamera position={camPosition} />
       </Canvas>
     </>
