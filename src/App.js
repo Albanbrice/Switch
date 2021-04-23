@@ -84,7 +84,7 @@ const Cube = (props) => {
   const setTarget = useStore((state) => state.setTarget);
   // const edit = useStore((state) => state.edit);
   // const setEdit = useStore(state => state.setEdit);
-  const [edit, setEdit] = useState(true);
+  const [edit, setEdit] = useState(false);
   const [click, setClick] = useState(0);
   const modes = ["translate", "rotate", "scale"];
   const [mode, setMode] = useState(modes[0]);
@@ -99,12 +99,12 @@ const Cube = (props) => {
 
   const cycleMode = (e) => {
     if (click === modes.length) {
+      //setEdit(!edit)
       setClick(0);
     } else {
       setClick(() => click + 1);
       setMode(modes[click]);
       console.log(modes[click]);
-      return;
     }
   };
 
@@ -112,6 +112,7 @@ const Cube = (props) => {
     const controls = transform.current;
     controls.setMode(mode);
     controls.setSpace("local");
+    controls.enabled = edit;
   });
 
   return (
@@ -138,11 +139,18 @@ const Cube = (props) => {
 };
 
 export default function App() {
+  const handleKeyDown = (e) => {
+    if (e.key === 27) {
+      console.log("espace");
+    }
+  };
+
   const camPosition = useStore((state) => state.camPosition);
   const target = useStore((state) => state.target);
   return (
     <>
       <Canvas
+        onKeyDown={handleKeyDown}
         shadows
         camera={{
           position: [0, 25, 50],
