@@ -1,4 +1,10 @@
-import React, { Suspense, useRef, useLayoutEffect, useEffect } from "react";
+import React, {
+  Suspense,
+  useRef,
+  useLayoutEffect,
+  useEffect,
+  useState
+} from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, TransformControls } from "@react-three/drei";
 import { Vector3 } from "three";
@@ -9,7 +15,9 @@ const useStore = create((set, get) => ({
   setCamPosition: (camPosition) =>
     set((state) => ({ camPosition: camPosition })),
   target: [0, 0, 0],
-  setTarget: (target) => set((state) => ({ target: target }))
+  setTarget: (target) => set((state) => ({ target: target })),
+  edit: false,
+  setEdit: (edit) => set((state) => ({ edit: edit }))
 }));
 
 const CustomCamera = (props) => {
@@ -74,16 +82,35 @@ const Cube = (props) => {
   const { color, position, viewpoint, rotation } = props;
   const setCamPosition = useStore((state) => state.setCamPosition);
   const setTarget = useStore((state) => state.setTarget);
+  // const edit = useStore((state) => state.edit);
+  // const setEdit = useStore(state => state.setEdit);
+  const [edit, setEdit] = useState(true);
+  const [click, setClick] = useState(0);
+  const modes = ["translate", "rotate", "scale"];
+  const [mode, setMode] = useState(modes[0]);
+
   const handleClick = (e) => {
     e.stopPropagation();
     const { x, y, z } = e.point;
     setCamPosition(viewpoint);
     setTarget([x, y, z]);
+    setEdit(!edit);
+  };
+
+  const cycleMode = (e) => {
+    if (click === modes.length) {
+      setClick(0);
+    } else {
+      setClick(() => click + 1);
+      setMode(modes[click]);
+      console.log(modes[click]);
+      return;
+    }
   };
 
   useEffect(() => {
     const controls = transform.current;
-    controls.setMode("translate");
+    controls.setMode(mode);
     controls.setSpace("local");
   });
 
@@ -91,11 +118,16 @@ const Cube = (props) => {
     // <TransformControls ref={transform}>
     <group name={`${color} cube`}>
       <TransformControls
+        enabled={edit}
         ref={transform}
         position={position}
         rotation={rotation}
       >
-        <mesh castShadow onClick={(e) => handleClick(e)}>
+        <mesh
+          castShadow
+          //onClick={(e) => handleClick(e)}
+          onDoubleClick={cycleMode}
+        >
           <boxBufferGeometry attach="geometry" args={[3, 3, 3]} />
           <meshStandardMaterial attach="material" color={color} />
         </mesh>
