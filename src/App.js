@@ -17,7 +17,10 @@ const useStore = create((set, get) => ({
   target: [0, 0, 0],
   setTarget: (target) => set((state) => ({ target: target })),
   edit: false,
-  setEdit: (edit) => set((state) => ({ edit: edit }))
+  setEdit: (edit) => set((state) => ({ edit: edit })),
+  orbitEnabled: true,
+  toggleOrbitEnabled: (orbitEnabled) =>
+    set((state) => ({ orbitEnabled: orbitEnabled }))
 }));
 
 const CustomCamera = (props) => {
@@ -85,6 +88,8 @@ const Cube = (props) => {
   const setTarget = useStore((state) => state.setTarget);
   // const edit = useStore((state) => state.edit);
   // const setEdit = useStore(state => state.setEdit);
+  const orbitEnabled = useStore((state) => state.orbitEnabled);
+  const toggleOrbitEnabled = useStore((state) => state.toggleOrbitEnabled);
   const [edit, setEdit] = useState(true);
   const [click, setClick] = useState(0);
   const modes = ["translate", "rotate", "scale"];
@@ -116,7 +121,7 @@ const Cube = (props) => {
 
       controls.setSpace("local");
       controls.enabled = edit;
-      const callback = (event) => (orbit.current.enabled = !event.value);
+      const callback = (event) => toggleOrbitEnabled(!event.value);
       controls.addEventListener("dragging-changed", callback);
       return () => controls.removeEventListener("dragging-changed", callback);
     }
@@ -139,7 +144,7 @@ const Cube = (props) => {
           <meshStandardMaterial attach="material" color={color} />
         </mesh>
       </TransformControls>
-      <OrbitControls ref={orbit} />
+      {/* <OrbitControls ref={orbit} /> */}
     </group>
   );
 };
@@ -150,9 +155,16 @@ export default function App() {
       console.log("espace");
     }
   };
-  //const orbit = useRef()
+  const orbit = useRef();
+  const orbitEnabled = useStore((state) => state.orbitEnabled);
   const camPosition = useStore((state) => state.camPosition);
   const target = useStore((state) => state.target);
+
+  // useEffect(()=> {
+  //   const controls = orbit.current;
+  //   controls.enabled = orbitEnabled;
+  // });
+
   return (
     <>
       <Canvas
@@ -184,7 +196,7 @@ export default function App() {
           viewpoint={viewPoints.right}
         />
 
-        {/* <OrbitControls useRef={orbit} enabled={true} target={target} /> */}
+        <OrbitControls useRef={orbit} enabled={orbitEnabled} target={target} />
         <CustomCamera position={camPosition} />
       </Canvas>
     </>
