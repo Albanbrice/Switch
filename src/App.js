@@ -70,7 +70,7 @@ const Plane = () => {
   return (
     <group name="Plane">
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -3, 0]}>
-        <planeBufferGeometry attach="geometry" args={[50, 50, 10, 10]} />
+        <planeBufferGeometry attach="geometry" args={[80, 80, 10, 10]} />
         <meshStandardMaterial attach="material" color={"yellow"} />
       </mesh>
     </group>
@@ -91,9 +91,9 @@ const Cube = (props) => {
 
   const handleClick = (e) => {
     e.stopPropagation();
-    const { x, y, z } = e.point;
-    setCamPosition(viewpoint);
-    setTarget([x, y, z]);
+    //const { x, y, z } = e.point;
+    //setCamPosition(viewpoint);
+    //setTarget([x, y, z]);
     setEdit(!edit);
   };
 
@@ -126,7 +126,7 @@ const Cube = (props) => {
       >
         <mesh
           castShadow
-          //onClick={(e) => handleClick(e)}
+          onClick={(e) => handleClick(e)}
           onDoubleClick={cycleMode}
         >
           <boxBufferGeometry attach="geometry" args={[3, 3, 3]} />
@@ -140,7 +140,7 @@ const Cube = (props) => {
 
 export default function App() {
   const handleKeyDown = (e) => {
-    if (e.key === 27) {
+    if (e.key === 32) {
       console.log("espace");
     }
   };
