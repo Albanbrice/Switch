@@ -79,12 +79,13 @@ const Plane = () => {
 
 const Cube = (props) => {
   const transform = useRef();
+  const orbit = useRef();
   const { color, position, viewpoint, rotation } = props;
   const setCamPosition = useStore((state) => state.setCamPosition);
   const setTarget = useStore((state) => state.setTarget);
   // const edit = useStore((state) => state.edit);
   // const setEdit = useStore(state => state.setEdit);
-  const [edit, setEdit] = useState(false);
+  const [edit, setEdit] = useState(true);
   const [click, setClick] = useState(0);
   const modes = ["translate", "rotate", "scale"];
   const [mode, setMode] = useState(modes[0]);
@@ -109,32 +110,37 @@ const Cube = (props) => {
   };
 
   useEffect(() => {
-    const controls = transform.current;
-    controls.setMode(mode);
-    controls.setSpace("local");
-    controls.enabled = edit;
+    if (transform.current) {
+      const controls = transform.current;
+      controls.setMode(mode);
+
+      controls.setSpace("local");
+      controls.enabled = edit;
+      const callback = (event) => (orbit.current.enabled = !event.value);
+      controls.addEventListener("dragging-changed", callback);
+      return () => controls.removeEventListener("dragging-changed", callback);
+    }
   });
 
   return (
-    // <TransformControls ref={transform}>
     <group name={`${color} cube`}>
       <TransformControls
-        enabled={edit}
+        // enabled={edit}
         ref={transform}
         position={position}
         rotation={rotation}
       >
         <mesh
           castShadow
-          onClick={(e) => handleClick(e)}
+          // onClick={(e) => handleClick(e)}
           onDoubleClick={cycleMode}
         >
           <boxBufferGeometry attach="geometry" args={[3, 3, 3]} />
           <meshStandardMaterial attach="material" color={color} />
         </mesh>
       </TransformControls>
+      <OrbitControls ref={orbit} />
     </group>
-    // </TransformControls>
   );
 };
 
@@ -144,7 +150,7 @@ export default function App() {
       console.log("espace");
     }
   };
-
+  //const orbit = useRef()
   const camPosition = useStore((state) => state.camPosition);
   const target = useStore((state) => state.target);
   return (
@@ -178,7 +184,7 @@ export default function App() {
           viewpoint={viewPoints.right}
         />
 
-        <OrbitControls enabled={true} target={target} />
+        {/* <OrbitControls useRef={orbit} enabled={true} target={target} /> */}
         <CustomCamera position={camPosition} />
       </Canvas>
     </>
